@@ -112,8 +112,8 @@
 								Dropdown
 							</a>
 							<div class="dropdown-menu" aria-labelledby="navbarDropdown">
-								<a class="dropdown-item" href="#">Action</a>
-								<a class="dropdown-item" href="#">Another action</a>
+								<a class="dropdown-item" href="#">Game</a>
+								<a class="dropdown-item" href="#">Another game</a>
 								<div class="dropdown-divider"></div>
 								<a class="dropdown-item" href="#">Something else here</a>
 							</div>
@@ -183,8 +183,8 @@
 								Puntajes Parciales:
 							</div>
 							<div class="card-body">
-								<h5 class="card-title">X:<span id="x_score">0</span> </h5>
-								<h5 class="card-title">O:<span id="O_score">0</span> </h5>
+								<h5 class="card-title">X:<span id="score_x">0</span> </h5>
+								<h5 class="card-title">O:<span id="score_O">0</span> </h5>
 							</div>
 						</div>
 					</div>
@@ -194,7 +194,7 @@
 
 		<!-- Modal -->
 
-		<div class="modal fade" id="staticBackdrop" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+		<div class="modal fade" id="modal-ganador" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
 			<div class="modal-dialog">
 				<div class="modal-content">
 					<div class="modal-header">
@@ -204,7 +204,7 @@
 						  </button>
 					</div>
 					<div class="modal-body">
-						Felicidades al ganador!
+						Felicidades! Ha ganado <span id="winner"> </span>! 
 					</div>
 					<div class="modal-footer">
 						<button type="button" class="btn btn-warning" data-dismiss="modal">Cerrar</button>
@@ -234,12 +234,31 @@
 				return valores;
 			}
 
-			function ganador(num1, num2, num3) {
+			function ganador(num1, num2, num3, jugador) {
+				$('#winner').html(jugador);
+				$('#modal-ganador').modal();
 				$('.celda:eq(' + num1 + ')').addClass('ganadora');
 				$('.celda:eq(' + num2 + ')').addClass('ganadora');
 				$('.celda:eq(' + num3 + ')').addClass('ganadora');
-				$('.modal').modal('show');
 				hay_ganador = true;
+
+				//Modificar Puntajes Globales
+				//si gana X, se suma 1 punto a puntaje de X
+				if(jugador == 'X'){
+					var puntaje = $('#score_x').html()
+					puntaje = parseInt(puntaje)
+					puntaje += 1
+					$('#score_x').html(puntaje)
+					localStorage.setItem('score_x', puntaje);
+				}
+				//si gana O, se suma 1 punto a puntaje de O
+				else if (jugador == 'O') {
+					var puntaje = $('#score_O').html()
+					puntaje = parseInt(puntaje)
+					puntaje += 1
+					$('#score_O').html(puntaje)
+					localStorage.setItem('score_O', puntaje);
+				}
 			}
 
 			//reiniciar juego
@@ -252,35 +271,35 @@
 			function buscar_ganador(jugador){
 				var valores=traer_valores();
 				if(valores[0]==jugador && valores[1]==jugador && valores[2]==jugador){
-					ganador('0','1','2');
+					ganador('0','1','2',jugador);
 				}
 				//segunda fila 
 				else if(valores[3]==jugador && valores[4] ==jugador && valores[5]==jugador){
-					ganador('3','4','5');
+					ganador('3','4','5',jugador);
 				}
 				//tercera fila 
 				else if(valores[6]==jugador && valores[7]==jugador && valores[8]==jugador){
-					ganador('6','7','8');
+					ganador('6','7','8',jugador);
 				}
 				//primera columna
 				else if(valores[0]==jugador && valores[3]==jugador && valores[6]==jugador){
-					ganador('0','3','6');
+					ganador('0','3','6',jugador);
 				}
 				//segunda columna
 				else if(valores[1]==jugador && valores[4]==jugador && valores[7]==jugador){
-					ganador('1','4','7');
+					ganador('1','4','7',jugador);
 				}
 				//tercera columna
 				else if(valores[2]==jugador && valores[5]==jugador && valores[8]==jugador){
-					ganador('2','5','8');
+					ganador('2','5','8',jugador);
 				}
 				//diagonal descendiente
 				else if(valores[0]==jugador && valores[4]==jugador && valores[8]==jugador){
-					ganador('0','4','8');
+					ganador('0','4','8',jugador);
 				}
 				//diagonal ascendiente
 				else if(valores[6]==jugador && valores[4]==jugador && valores[2]==jugador){
-					ganador('6','4','2');
+					ganador('6','4','2',jugador);
 				}
 			}
 
@@ -312,7 +331,17 @@
 				//verificar: gana O
 				buscar_ganador('O');
 				//verificar: gana X
-				buscar_ganador('X');				
+				buscar_ganador('X');			
+
+				//Recuperar puntajes ronda anterior al cargar la página (auto-ejecutable)
+				(function() {
+				// cuando inicie la página, cargo los puntajes que ya tenía de antes
+				var score_x = localStorage.getItem('score_x') || '0';
+				var score_O = localStorage.getItem('score_O') || '0'; 
+				// los meto en el HTML
+				$('#score_x').html(score_x);
+				$('#score_O').html(score_O);
+			})();
 
 			});
 		</script>
